@@ -6,32 +6,31 @@
 //
 
 import SwiftUI
-import Combine
 import RSudokuKit
 
-public class RenderCell: RenderNode, ObservableObject, Equatable {
-    public static func == (lhs: RenderCell, rhs: RenderCell) -> Bool {
-        return lhs.index == rhs.index &&
-        lhs.clue == rhs.clue &&
-        lhs.value == rhs.value &&
-        lhs.isSelected == rhs.isSelected &&
-        lhs.renderCandidates == rhs.renderCandidates &&
-        lhs.clueTextColor == rhs.clueTextColor &&
-        lhs.valueTextColor == rhs.valueTextColor &&
-        lhs.highlightColor == rhs.highlightColor &&
-        lhs.maskColor == rhs.maskColor
-    }
+@Observable public class RenderCell: RenderNode/*, Equatable*/ {
+//    public static func == (lhs: RenderCell, rhs: RenderCell) -> Bool {
+//        return lhs.index == rhs.index &&
+//        lhs.clue == rhs.clue &&
+//        lhs.value == rhs.value &&
+//        lhs.isSelected == rhs.isSelected &&
+//        lhs.renderCandidates == rhs.renderCandidates &&
+//        lhs.clueTextColor == rhs.clueTextColor &&
+//        lhs.valueTextColor == rhs.valueTextColor &&
+//        lhs.highlightColor == rhs.highlightColor &&
+//        lhs.maskColor == rhs.maskColor
+//    }
     
     
-    public let index: Index
-    @Published public var clue: Clue? = nil
-    @Published public var value: Value? = nil
-    @Published public var isSelected: Bool = false
+    @ObservationIgnored public let index: Index
+    public var clue: Clue? = nil
+    public var value: Value? = nil
+    public var isSelected: Bool = false
     public var renderCandidates: RenderCandidates = RenderCandidates()
-    @Published public var clueTextColor: Color = Color.textClue
-    @Published public var valueTextColor: Color = Color.textValue
-    @Published public var highlightColor: Color? = nil
-    @Published public var maskColor: Color? = nil
+    public var clueTextColor: Color = Color.textClue
+    public var valueTextColor: Color = Color.textValue
+    public var highlightColor: Color? = nil
+    public var maskColor: Color? = nil
     
     init(index: any AsIndex) {
         self.index = index.asIndex()
@@ -66,32 +65,32 @@ public class RenderCell: RenderNode, ObservableObject, Equatable {
     func onAction(_ action: RenderAction) -> Bool {
         switch action {
         case .RenderClue(_, let clue):
-            assignIfChanged(&self.clue, clue.asClue())
+            self.clue = clue.asClue()
             return true
         case .RenderValue(_, let value):
-            assignIfChanged(&self.value, value.asValue())
+            self.value = value.asValue()
             return true
         case .RenderPutValue(_, let value):
-            assignIfChanged(&self.value, value.asValue())
+            self.value = value.asValue()
             self.valueTextColor = Color.textValuePositive
             return true
         case .RenderCellBackground(_, let color):
-            assignIfChanged(&self.highlightColor, RenderColorParser.parseColor(color))
+            self.highlightColor = RenderColorParser.parseColor(color)
             return true
         case .RenderCellMask(_, let color):
-            assignIfChanged(&self.maskColor, RenderColorParser.parseColor(color))
+            self.maskColor = RenderColorParser.parseColor(color)
             return true
         case .RenderHighlightValueColor(_, let color):
-            assignIfChanged(&self.valueTextColor, RenderColorParser.parseColor(color) ?? self.valueTextColor)
+            self.valueTextColor = RenderColorParser.parseColor(color) ?? self.valueTextColor
             return true
         case .RenderMaskColor(_, let color):
-            assignIfChanged(&self.maskColor, RenderColorParser.parseColor(color))
+            self.maskColor = RenderColorParser.parseColor(color)
             return true
         case .RenderSelected(_):
-            assignIfChanged(&self.isSelected, true)
+            self.isSelected = true
             return true
         case .RenderUnselected(_):
-            assignIfChanged(&self.isSelected, false)
+            self.isSelected = false
             return true
         default:
             return false

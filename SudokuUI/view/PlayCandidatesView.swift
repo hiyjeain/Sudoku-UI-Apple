@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PlayCandidatesView: View {
     private let inner_padding: CGFloat = 8
-    @ObservedObject var candidates: RenderCandidates
+    @Bindable var candidates: RenderCandidates
     let size: CGFloat
     var body: some View {
 //        let _ = print("PlayCandidatesView: Rerendering")

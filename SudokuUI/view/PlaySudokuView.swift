@@ -8,14 +8,13 @@
 import os
 import SwiftUI
 import RSudokuKit
-import Combine
 
-class PlayGame: ObservableObject {
-    @Published var selectedIndex: (any AsIndex)? = nil
+@Observable class PlayGame {
+    var selectedIndex: (any AsIndex)? = nil
 }
 
-public class PlaySudokuConfiguration: ObservableObject {
-    @Published var size: CGFloat {
+@Observable public class PlaySudokuConfiguration {
+    var size: CGFloat {
         didSet {
 //            AppLog.ui.trace("Setting size: \(size)")
         }
@@ -60,10 +59,15 @@ public class PlaySudokuConfiguration: ObservableObject {
 
 public struct PlaySudokuView: View {
     let padding = 16.0
-    public var sudoku: RenderSudoku
-    @ObservedObject public var game: SudokuGame
-    @StateObject public var configuration = PlaySudokuConfiguration()
+    @State public var sudoku: RenderSudoku
+    @State public var game: SudokuGame
+    @State public var configuration = PlaySudokuConfiguration()
     @FocusState private var focused: Bool
+    
+    public init(game: SudokuGame) {
+        self.sudoku = game.renderSudoku
+        self.game = game
+    }
     
     public init(sudoku: RenderSudoku, game: SudokuGame) {
         self.sudoku = sudoku
@@ -171,7 +175,7 @@ public struct PlaySudokuView: View {
 }
 
 #Preview("Empty") {
-    PlaySudokuView(sudoku: RenderSudoku(), game: SudokuGame())
+    PlaySudokuView(game: SudokuGame())
 }
 
 #Preview("Full") {

@@ -7,25 +7,24 @@
 
 import SwiftUI
 import RSudokuKit
-import Combine
 
-public class RenderCandidate: RenderNode, Equatable, ObservableObject {
-    public static func == (lhs: RenderCandidate, rhs: RenderCandidate) -> Bool {
-        return lhs.candidate == rhs.candidate &&
-        lhs.isShown == rhs.isShown &&
-        lhs.candidateTextColor == rhs.candidateTextColor &&
-        lhs.highlightColor == rhs.highlightColor &&
-        lhs.maskColor == rhs.maskColor &&
-        lhs.candidateCellBorderColor == rhs.candidateCellBorderColor
-    }
+@Observable public class RenderCandidate: RenderNode/*, Equatable*/ {
+//    public static func == (lhs: RenderCandidate, rhs: RenderCandidate) -> Bool {
+//        return lhs.candidate == rhs.candidate &&
+//        lhs.isShown == rhs.isShown &&
+//        lhs.candidateTextColor == rhs.candidateTextColor &&
+//        lhs.highlightColor == rhs.highlightColor &&
+//        lhs.maskColor == rhs.maskColor &&
+//        lhs.candidateCellBorderColor == rhs.candidateCellBorderColor
+//    }
     
     
-    @Published public var candidate: UInt8
-    @Published public var isShown: Bool = false
-    @Published public var candidateTextColor: Color
-    @Published public var highlightColor: Color?
-    @Published public var maskColor: Color?
-    @Published public var candidateCellBorderColor: Color
+    public var candidate: UInt8
+    public var isShown: Bool = false
+    public var candidateTextColor: Color
+    public var highlightColor: Color?
+    public var maskColor: Color?
+    public var candidateCellBorderColor: Color
     
     init(candidate: UInt8,
          isShown: Bool = false,
@@ -42,7 +41,7 @@ public class RenderCandidate: RenderNode, Equatable, ObservableObject {
         self.candidateCellBorderColor = candidateCellBorderColor
     }
     
-    public func reset() {
+    func reset() {
 //        AppLog.viewmodel.trace("RenderCandidate: Resetting candidate \(candidate)")
         self.isShown = false
         self.highlightColor = nil
@@ -59,21 +58,15 @@ public class RenderCandidate: RenderNode, Equatable, ObservableObject {
         switch action {
         case .RenderCandidateOfCell(_, _),
              .RenderCandidatesOfCell(_, _):
-            if assignIfChanged(&isShown, true) {
-//                AppLog.viewmodel.trace("RenderCandidate: Candidate \(candidate) is now shown")
-            }
+            self.isShown = true
             return false
         case .RenderCandidateOfCellBackground(_, _, let color),
              .RenderCandidatesOfCellBackground(_, _, let color):
-            if assignIfChanged(&self.highlightColor, RenderColorParser.parseColor(color)) {
-//                AppLog.data.trace("RenderCandidate: Updated highlight color for candidate \(candidate) to \(self.highlightColor)")
-            }
+            self.highlightColor = RenderColorParser.parseColor(color)
             return true
         case .RenderCandidateOfCellMask(_, _, let color),
              .RenderCandidatesOfCellMask(_, _, let color):
-            if assignIfChanged(&self.maskColor, RenderColorParser.parseColor(color)) {
-//                AppLog.data.trace("RenderCandidate: Updated mask color for candidate \(candidate) to \(self.maskColor)")
-            }
+            self.maskColor = RenderColorParser.parseColor(color)
             return true
         default:
             return false

@@ -11,7 +11,7 @@ import os
 import RSudokuKit
 
 struct PlayCellView: View {
-    @ObservedObject var cell: RenderCell
+    @Bindable var cell: RenderCell
     let size: CGFloat
     var row: UInt8 { UInt8(cell.index.asIndex().value() / 9) }
     var col: UInt8 { UInt8(cell.index.asIndex().value() % 9) }

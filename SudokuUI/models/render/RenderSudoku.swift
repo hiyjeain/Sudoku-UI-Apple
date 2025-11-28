@@ -6,8 +6,9 @@
 //
 
 import RSudokuKit
+import SwiftUI
 
-public class RenderSudoku: RenderNode {
+@Observable public class RenderSudoku: RenderNode {
     
     public var renderCells: [RenderCell] = [
         RenderCell(index: 0),   RenderCell(index: 1),   RenderCell(index: 2),   RenderCell(index: 3),   RenderCell(index: 4),   RenderCell(index: 5),   RenderCell(index: 6),   RenderCell(index: 7),   RenderCell(index: 8),

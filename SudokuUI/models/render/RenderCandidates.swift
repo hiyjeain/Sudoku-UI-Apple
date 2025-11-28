@@ -7,12 +7,11 @@
 
 import SwiftUI
 import RSudokuKit
-import Combine
 
-public class RenderCandidates: RenderNode, Equatable, ObservableObject {
-    public static func == (lhs: RenderCandidates, rhs: RenderCandidates) -> Bool {
-        lhs.renderCandidates == rhs.renderCandidates
-    }
+@Observable public class RenderCandidates: RenderNode/*, Equatable*/ {
+//    public static func == (lhs: RenderCandidates, rhs: RenderCandidates) -> Bool {
+//        lhs.renderCandidates == rhs.renderCandidates
+//    }
     
     func onInterceptAction(_ action: RenderAction) -> Bool {
         true

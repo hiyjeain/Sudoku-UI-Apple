@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PlayCandidateView: View {
-    @ObservedObject var candidate: RenderCandidate
+    @Bindable var candidate: RenderCandidate
     let size: CGFloat
 
     var body: some View {
