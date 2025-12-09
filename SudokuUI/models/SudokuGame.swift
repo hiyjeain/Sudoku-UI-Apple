@@ -15,9 +15,47 @@ import RSudokuKit
             self.task = task
         }
     }
-    
     @ObservationIgnored var checkSingleAnswerTask: SingaleAnswerTask? = nil
+
+    final class NextSolutionStepTask {
+        let task: Task<SolutionStep?, Error>
+        init(task: Task<SolutionStep?, Error>) {
+            self.task = task
+        }
+    }
+    @ObservationIgnored var nextSolutionStepTask: NextSolutionStepTask? = nil
     
+    var game: RSudokuGame
+    public var renderSudoku = RenderSudoku()
+    public var isReady = false
+    public var nextSolutionStep: SolutionStep? = nil
+    private let solver = Solver()
+    
+    public func checkNextSolutionStep() {
+        if !self.isReady {
+            nextSolutionStep = nil
+            return
+        }
+        Task {
+            await self.getNextSolutionStep()
+        }
+    }
+    
+    private func getNextSolutionStep() async {
+        self.nextSolutionStep = nil
+        self.nextSolutionStepTask?.task.cancel()
+        
+        let localTask = NextSolutionStepTask(task: Task.detached(priority: .userInitiated) {
+            try await self.solver.next(puzzle: self.game.puzzle)
+        })
+        
+        self.nextSolutionStepTask = localTask
+        
+        guard let result = try? await localTask.task.value else { return }
+        guard localTask === self.nextSolutionStepTask else { return }
+        self.nextSolutionStep = result
+    }
+
     private func checkIfHasSingleAnswer() async {
         self.isReady = false
         self.checkSingleAnswerTask?.task.cancel()
@@ -33,9 +71,6 @@ import RSudokuKit
         self.isReady = result
     }
     
-    public var game: RSudokuGame
-    public var renderSudoku = RenderSudoku()
-    public var isReady = false
     
     public init() {
         self.game = RSudokuGame()
@@ -61,6 +96,10 @@ import RSudokuKit
     
     public func select(index: any AsIndex) {
         self.game.select(index: index)
+    }
+    
+    public func apply(solutionStep: SolutionStep) {
+        self.game.apply(solutionStep: solutionStep)
     }
     
     public func render() {

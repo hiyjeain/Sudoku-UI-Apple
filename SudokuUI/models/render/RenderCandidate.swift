@@ -68,6 +68,9 @@ import RSudokuKit
              .RenderCandidatesOfCellMask(_, _, let color):
             self.maskColor = RenderColorParser.parseColor(color)
             return true
+        case .Init:
+            self.reset()
+            return false
         default:
             return false
         }
@@ -90,7 +93,8 @@ import RSudokuKit
              .RenderCandidatesOfCellBackground(_, let candidates, _),
              .RenderCandidatesOfCellMask(_, let candidates, _):
             return candidates.asCandidates().contains(candidate: self.candidate)
-
+        case .Init:
+            return true
         default:
             return false
         }

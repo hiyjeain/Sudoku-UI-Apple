@@ -64,6 +64,9 @@ import RSudokuKit
     
     func onAction(_ action: RenderAction) -> Bool {
         switch action {
+        case .Init:
+            self.reset()
+            return false
         case .RenderClue(_, let clue):
             self.clue = clue.asClue()
             return true
