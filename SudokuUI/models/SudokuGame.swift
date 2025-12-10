@@ -26,6 +26,8 @@ import RSudokuKit
     @ObservationIgnored var nextSolutionStepTask: NextSolutionStepTask? = nil
     
     var game: RSudokuGame
+    public var canUndo: Bool = false
+    public var canRedo: Bool = false
     public var renderSudoku = RenderSudoku()
     public var isReady = false
     public var nextSolutionStep: SolutionStep? = nil
@@ -82,6 +84,8 @@ import RSudokuKit
         self.game.puzzle.reset()
         self.renderSudoku.reset()
         self.isReady = false
+        self.canUndo = false
+        self.canRedo = false
     }
     
     public func copy(from: Puzzle) {
@@ -98,8 +102,39 @@ import RSudokuKit
         self.game.select(index: index)
     }
     
-    public func apply(solutionStep: SolutionStep) {
+    public func apply(solutionStep: SolutionStep?, undoManager: UndoManager? = nil) {
+        guard let solutionStep = solutionStep else {
+            return
+        }
         self.game.apply(solutionStep: solutionStep)
+        undoManager?.registerUndo(withTarget: self) { target in
+            target.undo(undoManager: undoManager)
+        }
+        undoManager?.setActionName("\(solutionStep.name!)")
+        self.nextSolutionStep = nil
+        self.render()
+        self.canUndo = game.canUndo()
+        self.canRedo = game.canRedo()
+    }
+    
+    public func undo(undoManager: UndoManager? = nil) {
+        self.game.undo()
+        undoManager?.registerUndo(withTarget: self) { target in
+            target.redo(undoManager: undoManager)
+        }
+        self.render()
+        self.canUndo = game.canUndo()
+        self.canRedo = undoManager?.canRedo ?? false
+    }
+    
+    public func redo(undoManager: UndoManager? = nil) {
+        self.game.redo()
+        undoManager?.registerUndo(withTarget: self) { target in
+            target.undo(undoManager: undoManager)
+        }
+        self.render()
+        self.canUndo = game.canUndo()
+        self.canRedo = game.canRedo()
     }
     
     public func render() {
