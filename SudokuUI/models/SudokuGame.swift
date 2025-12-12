@@ -26,6 +26,7 @@ import RSudokuKit
     @ObservationIgnored var nextSolutionStepTask: NextSolutionStepTask? = nil
     
     var game: RSudokuGame
+    var selectedIndex: (any AsIndex)? = nil
     public var canUndo: Bool = false
     public var canRedo: Bool = false
     public var renderSudoku = RenderSudoku()
@@ -100,6 +101,7 @@ import RSudokuKit
     
     public func select(index: any AsIndex) {
         self.game.select(index: index)
+        self.selectedIndex = index
     }
     
     public func apply(solutionStep: SolutionStep?, undoManager: UndoManager? = nil) {
@@ -111,6 +113,19 @@ import RSudokuKit
             target.undo(undoManager: undoManager)
         }
         undoManager?.setActionName("\(solutionStep.name!)")
+        self.nextSolutionStep = nil
+        self.render()
+        self.canUndo = game.canUndo()
+        self.canRedo = game.canRedo()
+    }
+    
+    public func userPut(value: any AsValue, undoManager: UndoManager? = nil) {
+        guard let index = self.selectedIndex else { return }
+        game.userPut(value: value, at: index)
+        undoManager?.registerUndo(withTarget: self) { target in
+            target.undo(undoManager: undoManager)
+        }
+        undoManager?.setActionName("Put value \(value) on \(index)")
         self.nextSolutionStep = nil
         self.render()
         self.canUndo = game.canUndo()
