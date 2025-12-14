@@ -119,6 +119,20 @@ import RSudokuKit
         self.canRedo = game.canRedo()
     }
     
+    public func userPut(candidate: any AsCandidate, undoManager: UndoManager? = nil) {
+        guard let index = self.selectedIndex else { return }
+        game.userPut(candidate: candidate, at: index)
+        undoManager?.registerUndo(withTarget: self) { target in
+            target.undo(undoManager: undoManager)
+        }
+        undoManager?.setActionName("Put candidate \(candidate) on \(index)")
+        self.nextSolutionStep = nil
+        self.render()
+        self.canUndo = game.canUndo()
+        self.canRedo = game.canRedo()
+
+    }
+    
     public func userPut(value: any AsValue, undoManager: UndoManager? = nil) {
         guard let index = self.selectedIndex else { return }
         game.userPut(value: value, at: index)
