@@ -92,6 +92,8 @@ import RSudokuKit
     public func copy(from: Puzzle) {
         self.reset()
         self.game.puzzle.copy(from: from)
+        self.game.reset_history()
+        self.game.reset_selection()
         Task {
             await self.checkIfHasSingleAnswer()
         }
