@@ -8,7 +8,7 @@
 import SwiftUI
 import RSudokuKit
 
-@Observable public class SudokuGame: Renderer.onActionsListener {
+@Observable public class SudokuGame: Renderer.OnActionsListener {
     final class SingaleAnswerTask {
         let task: Task<Bool, Error>
         init(task: Task<Bool, Error>) {
@@ -50,7 +50,7 @@ import RSudokuKit
         self.nextSolutionStepTask?.task.cancel()
         
         let localTask = NextSolutionStepTask(task: Task.detached(priority: .userInitiated) {
-            try await self.solver.next(puzzle: self.game.puzzle)
+            try await self.game.hint()
         })
         
         self.nextSolutionStepTask = localTask
@@ -65,7 +65,7 @@ import RSudokuKit
         self.checkSingleAnswerTask?.task.cancel()
         
         let localTask = SingaleAnswerTask(task: Task.detached(priority: .userInitiated) {
-            try await self.game.puzzle.hasSingleAnswer()
+            try await self.game.hasSingleAnswer()
         })
         
         self.checkSingleAnswerTask = localTask
@@ -78,12 +78,12 @@ import RSudokuKit
     
     public init() {
         self.game = RSudokuGame()
-        self.game.renderer.onActionsListener = self
+        self.game.set(onActionsListener: self)
         render()
     }
     
     public func reset() {
-        self.game.puzzle.reset()
+        self.game.reset()
         self.renderSudoku.reset()
         self.isReady = false
         self.canUndo = false
@@ -92,7 +92,7 @@ import RSudokuKit
     
     public func copy(from: Puzzle) {
         self.reset()
-        self.game.puzzle.copy(from: from)
+        self.game.copy(from: from)
         self.game.reset_history()
         self.game.reset_selection()
         Task {
