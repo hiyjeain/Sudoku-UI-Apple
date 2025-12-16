@@ -121,6 +121,17 @@ import RSudokuKit
         self.canRedo = game.canRedo()
     }
     
+    public func userDelete(undoManager: UndoManager? = nil) {
+        game.userDelete()
+        undoManager?.registerUndo(withTarget: self) { target in
+            target.undo(undoManager: undoManager)
+        }
+        undoManager?.setActionName("Delete")
+        self.render()
+        self.canUndo = game.canUndo()
+        self.canRedo = game.canRedo()
+    }
+    
     public func userPut(candidate: any AsCandidate, undoManager: UndoManager? = nil) {
         guard let index = self.selectedIndex else { return }
         game.userPut(candidate: candidate, at: index)
