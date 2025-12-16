@@ -32,6 +32,7 @@ import RSudokuKit
     public var renderSudoku = RenderSudoku()
     public var isReady = false
     public var nextSolutionStep: SolutionStep? = nil
+    @ObservationIgnored public var undoManager: UndoManager? = nil
     private let solver = Solver()
     
     public func checkNextSolutionStep() {
@@ -106,13 +107,13 @@ import RSudokuKit
         self.selectedIndex = index
     }
     
-    public func apply(solutionStep: SolutionStep?, undoManager: UndoManager? = nil) {
+    public func apply(solutionStep: SolutionStep?) {
         guard let solutionStep = solutionStep else {
             return
         }
         self.game.apply(solutionStep: solutionStep)
         undoManager?.registerUndo(withTarget: self) { target in
-            target.undo(undoManager: undoManager)
+            target.undo()
         }
         undoManager?.setActionName("\(solutionStep.name!)")
         self.nextSolutionStep = nil
@@ -121,10 +122,10 @@ import RSudokuKit
         self.canRedo = game.canRedo()
     }
     
-    public func userDelete(undoManager: UndoManager? = nil) {
+    public func userDelete() {
         game.userDelete()
         undoManager?.registerUndo(withTarget: self) { target in
-            target.undo(undoManager: undoManager)
+            target.undo()
         }
         undoManager?.setActionName("Delete")
         self.render()
@@ -132,11 +133,11 @@ import RSudokuKit
         self.canRedo = game.canRedo()
     }
     
-    public func userPut(candidate: any AsCandidate, undoManager: UndoManager? = nil) {
+    public func userPut(candidate: any AsCandidate) {
         guard let index = self.selectedIndex else { return }
         game.userPut(candidate: candidate, at: index)
         undoManager?.registerUndo(withTarget: self) { target in
-            target.undo(undoManager: undoManager)
+            target.undo()
         }
         undoManager?.setActionName("Put candidate \(candidate) on \(index)")
         self.nextSolutionStep = nil
@@ -146,11 +147,11 @@ import RSudokuKit
 
     }
     
-    public func userPut(value: any AsValue, undoManager: UndoManager? = nil) {
+    public func userPut(value: any AsValue) {
         guard let index = self.selectedIndex else { return }
         game.userPut(value: value, at: index)
         undoManager?.registerUndo(withTarget: self) { target in
-            target.undo(undoManager: undoManager)
+            target.undo()
         }
         undoManager?.setActionName("Put value \(value) on \(index)")
         self.nextSolutionStep = nil
@@ -159,20 +160,20 @@ import RSudokuKit
         self.canRedo = game.canRedo()
     }
     
-    public func undo(undoManager: UndoManager? = nil) {
+    public func undo() {
         self.game.undo()
         undoManager?.registerUndo(withTarget: self) { target in
-            target.redo(undoManager: undoManager)
+            target.redo()
         }
         self.render()
         self.canUndo = game.canUndo()
         self.canRedo = undoManager?.canRedo ?? false
     }
     
-    public func redo(undoManager: UndoManager? = nil) {
+    public func redo() {
         self.game.redo()
         undoManager?.registerUndo(withTarget: self) { target in
-            target.undo(undoManager: undoManager)
+            target.undo()
         }
         self.render()
         self.canUndo = game.canUndo()
