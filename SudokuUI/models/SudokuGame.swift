@@ -133,32 +133,43 @@ import RSudokuKit
         self.canRedo = game.canRedo()
     }
     
-    public func userPut(candidate: any AsCandidate) {
-        guard let index = self.selectedIndex else { return }
-        game.userPut(candidate: candidate, at: index)
+//    public func userPut(candidate: any AsCandidate) {
+//        guard let index = self.selectedIndex else { return }
+//        game.userPut(candidate: candidate, at: index)
+//        undoManager?.registerUndo(withTarget: self) { target in
+//            target.undo()
+//        }
+//        undoManager?.setActionName("Put candidate \(candidate) on \(index)")
+//        self.nextSolutionStep = nil
+//        self.render()
+//        self.canUndo = game.canUndo()
+//        self.canRedo = game.canRedo()
+//
+//    }
+    
+    public func userInput(number: UInt8, isCandidate: Bool = false) {
+        game.userInput(number: number, isCandidate: isCandidate)
         undoManager?.registerUndo(withTarget: self) { target in
             target.undo()
         }
-        undoManager?.setActionName("Put candidate \(candidate) on \(index)")
         self.nextSolutionStep = nil
         self.render()
         self.canUndo = game.canUndo()
         self.canRedo = game.canRedo()
-
     }
     
-    public func userPut(value: any AsValue) {
-        guard let index = self.selectedIndex else { return }
-        game.userPut(value: value, at: index)
-        undoManager?.registerUndo(withTarget: self) { target in
-            target.undo()
-        }
-        undoManager?.setActionName("Put value \(value) on \(index)")
-        self.nextSolutionStep = nil
-        self.render()
-        self.canUndo = game.canUndo()
-        self.canRedo = game.canRedo()
-    }
+//    public func userPut(value: any AsValue) {
+//        guard let index = self.selectedIndex else { return }
+//        game.userPut(value: value, at: index)
+//        undoManager?.registerUndo(withTarget: self) { target in
+//            target.undo()
+//        }
+//        undoManager?.setActionName("Put value \(value) on \(index)")
+//        self.nextSolutionStep = nil
+//        self.render()
+//        self.canUndo = game.canUndo()
+//        self.canRedo = game.canRedo()
+//    }
     
     public func undo() {
         self.game.undo()
