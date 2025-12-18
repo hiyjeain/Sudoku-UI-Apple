@@ -45,6 +45,10 @@ import RSudokuKit
         }
     }
     
+    public func moveSelection(direction: MovementDirection) -> Bool {
+        return self.game.moveSelection(direction: direction)
+    }
+
     private func getNextSolutionStep() async {
         self.nextSolutionStep = nil
         self.nextSolutionStepTask?.task.cancel()
