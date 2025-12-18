@@ -107,11 +107,12 @@ import RSudokuKit
         self.selectedIndex = index
     }
     
-    public func apply(solutionStep: SolutionStep?) {
+    public func apply(solutionStep: SolutionStep?) -> Bool{
         guard let solutionStep = solutionStep else {
-            return
+            return false
         }
-        if self.game.apply(solutionStep: solutionStep) {
+        let result = self.game.apply(solutionStep: solutionStep)
+        if  result {
             undoManager?.registerUndo(withTarget: self) { target in
                 target.undo()
             }
@@ -120,10 +121,12 @@ import RSudokuKit
         self.render()
         self.canUndo = game.canUndo()
         self.canRedo = game.canRedo()
+        return result
     }
     
-    public func userDelete() {
-        if game.userDelete() {
+    public func userDelete() -> Bool{
+        let result = game.userDelete()
+        if result {
             undoManager?.registerUndo(withTarget: self) { target in
                 target.undo()
             }
@@ -132,6 +135,7 @@ import RSudokuKit
         self.render()
         self.canUndo = game.canUndo()
         self.canRedo = game.canRedo()
+        return result
     }
     
 //    public func userPut(candidate: any AsCandidate) {
@@ -148,8 +152,9 @@ import RSudokuKit
 //
 //    }
     
-    public func userInput(number: UInt8, isCandidate: Bool = false) {
-        if game.userInput(number: number, isCandidate: isCandidate) {
+    public func userInput(number: UInt8, isCandidate: Bool = false) -> Bool{
+        let result = game.userInput(number: number, isCandidate: isCandidate)
+        if result {
             undoManager?.registerUndo(withTarget: self) { target in
                 target.undo()
             }
@@ -158,6 +163,7 @@ import RSudokuKit
         self.render()
         self.canUndo = game.canUndo()
         self.canRedo = game.canRedo()
+        return result
     }
     
 //    public func userPut(value: any AsValue) {
