@@ -17,13 +17,13 @@ import RSudokuKit
     }
     @ObservationIgnored var checkSingleAnswerTask: SingaleAnswerTask? = nil
 
-    final class NextSolutionStepTask {
-        let task: Task<SolutionStep?, Error>
-        init(task: Task<SolutionStep?, Error>) {
+    final class NextStepTask {
+        let task: Task<Step?, Error>
+        init(task: Task<Step?, Error>) {
             self.task = task
         }
     }
-    @ObservationIgnored var nextSolutionStepTask: NextSolutionStepTask? = nil
+    @ObservationIgnored var nextStepTask: NextStepTask? = nil
     
     var game: RSudokuGame
     var selectedIndex: (any AsIndex)? = nil
@@ -31,17 +31,29 @@ import RSudokuKit
     public var canRedo: Bool = false
     public var renderSudoku = RenderSudoku()
     public var isReady = false
-    public var nextSolutionStep: SolutionStep? = nil
+    public var nextStep: Step? = nil {
+        didSet {
+            guard let step = nextStep else {
+                DispatchQueue.main.async {
+                    self.game.render()
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                self.game.render(with: step)
+            }
+        }
+    }
     @ObservationIgnored public var undoManager: UndoManager? = nil
     private let solver = Solver()
     
-    public func checkNextSolutionStep() {
+    public func checkNextStep() {
         if !self.isReady {
-            nextSolutionStep = nil
+            nextStep = nil
             return
         }
         Task {
-            await self.getNextSolutionStep()
+            await self.getNextStep()
         }
     }
     
@@ -49,19 +61,19 @@ import RSudokuKit
         return self.game.moveSelection(direction: direction)
     }
 
-    private func getNextSolutionStep() async {
-        self.nextSolutionStep = nil
-        self.nextSolutionStepTask?.task.cancel()
+    private func getNextStep() async {
+        self.nextStep = nil
+        self.nextStepTask?.task.cancel()
         
-        let localTask = NextSolutionStepTask(task: Task.detached(priority: .userInitiated) {
+        let localTask = NextStepTask(task: Task.detached(priority: .userInitiated) {
             try await self.game.hint()
         })
         
-        self.nextSolutionStepTask = localTask
+        self.nextStepTask = localTask
         
         guard let result = try? await localTask.task.value else { return }
-        guard localTask === self.nextSolutionStepTask else { return }
-        self.nextSolutionStep = result
+        guard localTask === self.nextStepTask else { return }
+        self.nextStep = result
     }
 
     private func checkIfHasSingleAnswer() async {
@@ -111,16 +123,16 @@ import RSudokuKit
         self.selectedIndex = index
     }
     
-    public func apply(solutionStep: SolutionStep?) -> Bool{
-        guard let solutionStep = solutionStep else {
+    public func apply(step: Step?) -> Bool{
+        guard let step = step else {
             return false
         }
-        let result = self.game.apply(solutionStep: solutionStep)
+        let result = self.game.apply(step: step)
         if  result {
             undoManager?.registerUndo(withTarget: self) { target in
                 target.undo()
             }
-            self.nextSolutionStep = nil
+            self.nextStep = nil
         }
         self.render()
         self.canUndo = game.canUndo()
@@ -134,27 +146,13 @@ import RSudokuKit
             undoManager?.registerUndo(withTarget: self) { target in
                 target.undo()
             }
-            self.nextSolutionStep = nil
+            self.nextStep = nil
         }
         self.render()
         self.canUndo = game.canUndo()
         self.canRedo = game.canRedo()
         return result
     }
-    
-//    public func userPut(candidate: any AsCandidate) {
-//        guard let index = self.selectedIndex else { return }
-//        game.userPut(candidate: candidate, at: index)
-//        undoManager?.registerUndo(withTarget: self) { target in
-//            target.undo()
-//        }
-//        undoManager?.setActionName("Put candidate \(candidate) on \(index)")
-//        self.nextSolutionStep = nil
-//        self.render()
-//        self.canUndo = game.canUndo()
-//        self.canRedo = game.canRedo()
-//
-//    }
     
     public func userInput(number: UInt8, isCandidate: Bool = false) -> Bool{
         let result = game.userInput(number: number, isCandidate: isCandidate)
@@ -162,26 +160,13 @@ import RSudokuKit
             undoManager?.registerUndo(withTarget: self) { target in
                 target.undo()
             }
-            self.nextSolutionStep = nil
+            self.nextStep = nil
         }
         self.render()
         self.canUndo = game.canUndo()
         self.canRedo = game.canRedo()
         return result
     }
-    
-//    public func userPut(value: any AsValue) {
-//        guard let index = self.selectedIndex else { return }
-//        game.userPut(value: value, at: index)
-//        undoManager?.registerUndo(withTarget: self) { target in
-//            target.undo()
-//        }
-//        undoManager?.setActionName("Put value \(value) on \(index)")
-//        self.nextSolutionStep = nil
-//        self.render()
-//        self.canUndo = game.canUndo()
-//        self.canRedo = game.canRedo()
-//    }
     
     public func undo() {
         self.game.undo()

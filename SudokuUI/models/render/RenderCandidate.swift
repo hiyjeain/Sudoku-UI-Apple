@@ -56,18 +56,24 @@ import RSudokuKit
     
     func onAction(_ action: RenderAction) -> Bool {
         switch action {
-        case .RenderCandidateOfCell(_, _),
-             .RenderCandidatesOfCell(_, _):
+        case .RenderCandidateOfCell(_, _):
+            self.isShown = true
+            return true
+        case .RenderCandidatesOfCell(_, _):
             self.isShown = true
             return false
-        case .RenderCandidateOfCellBackground(_, _, let color),
-             .RenderCandidatesOfCellBackground(_, _, let color):
+        case .RenderCandidateOfCellBackground(_, _, let color):
             self.highlightColor = RenderColorParser.parseColor(color)
             return true
-        case .RenderCandidateOfCellMask(_, _, let color),
-             .RenderCandidatesOfCellMask(_, _, let color):
+        case .RenderCandidatesOfCellBackground(_, _, let color):
+            self.highlightColor = RenderColorParser.parseColor(color)
+            return false
+        case .RenderCandidateOfCellMask(_, _, let color):
             self.maskColor = RenderColorParser.parseColor(color)
             return true
+        case .RenderCandidatesOfCellMask(_, _, let color):
+            self.maskColor = RenderColorParser.parseColor(color)
+            return false
         case .Init:
             self.reset()
             return false

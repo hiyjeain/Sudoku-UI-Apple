@@ -85,6 +85,7 @@ import RSudokuKit
             return true
         case .RenderHighlightValueColor(_, let color):
             self.valueTextColor = RenderColorParser.parseColor(color) ?? self.valueTextColor
+            self.clueTextColor = RenderColorParser.parseColor(color) ?? self.clueTextColor
             return true
         case .RenderMaskColor(_, let color):
             self.maskColor = RenderColorParser.parseColor(color)
