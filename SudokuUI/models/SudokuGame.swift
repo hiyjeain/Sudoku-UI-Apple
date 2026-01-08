@@ -58,7 +58,11 @@ import RSudokuKit
     }
     
     public func moveSelection(direction: MovementDirection) -> Bool {
-        return self.game.moveSelection(direction: direction)
+        let result = self.game.moveSelection(direction: direction)
+        if result {
+            self.game.render()
+        }
+        return result
     }
 
     private func getNextStep() async {
@@ -95,7 +99,7 @@ import RSudokuKit
     public init() {
         self.game = RSudokuGame()
         self.game.set(onActionsListener: self)
-        render()
+        self.game.render()
     }
     
     public func reset() {
@@ -115,12 +119,13 @@ import RSudokuKit
             await self.checkIfHasSingleAnswer()
         }
         self.renderSudoku.reset()
-        self.render()
+        self.game.render()
     }
     
     public func select(index: any AsIndex) {
         self.game.select(index: index)
         self.selectedIndex = index
+        self.game.render()
     }
     
     public func apply(step: Step?) -> Bool{
@@ -134,7 +139,7 @@ import RSudokuKit
             }
             self.nextStep = nil
         }
-        self.render()
+        self.game.render()
         self.canUndo = game.canUndo()
         self.canRedo = game.canRedo()
         return result
@@ -148,7 +153,7 @@ import RSudokuKit
             }
             self.nextStep = nil
         }
-        self.render()
+        self.game.render()
         self.canUndo = game.canUndo()
         self.canRedo = game.canRedo()
         return result
@@ -162,7 +167,7 @@ import RSudokuKit
             }
             self.nextStep = nil
         }
-        self.render()
+        self.game.render()
         self.canUndo = game.canUndo()
         self.canRedo = game.canRedo()
         return result
@@ -173,7 +178,7 @@ import RSudokuKit
         undoManager?.registerUndo(withTarget: self) { target in
             target.redo()
         }
-        self.render()
+        self.game.render()
         self.canUndo = game.canUndo()
         self.canRedo = undoManager?.canRedo ?? false
     }
@@ -183,13 +188,9 @@ import RSudokuKit
         undoManager?.registerUndo(withTarget: self) { target in
             target.undo()
         }
-        self.render()
+        self.game.render()
         self.canUndo = game.canUndo()
         self.canRedo = game.canRedo()
-    }
-    
-    public func render() {
-        self.game.render()
     }
     
     public func on(actions: [RenderAction]) {
