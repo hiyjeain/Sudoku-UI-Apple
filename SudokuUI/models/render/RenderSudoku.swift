@@ -21,6 +21,7 @@ import SwiftUI
         RenderCell(index: 63),  RenderCell(index: 64),  RenderCell(index: 65),  RenderCell(index: 66),  RenderCell(index: 67),  RenderCell(index: 68),  RenderCell(index: 69),  RenderCell(index: 70),  RenderCell(index: 71),
         RenderCell(index: 72),  RenderCell(index: 73),  RenderCell(index: 74),  RenderCell(index: 75),  RenderCell(index: 76),  RenderCell(index: 77),  RenderCell(index: 78),  RenderCell(index: 79),  RenderCell(index: 80)
     ]
+    public var renderLinksNode = RenderLinks()
     
     init() {}
     
@@ -32,10 +33,11 @@ import SwiftUI
         for child in renderCells {
             child.reset()
         }
+        self.renderLinksNode.reset()
     }
     
     func getChildNodes() -> [any RenderNode] {
-        return renderCells
+        return renderCells + [renderLinksNode]
     }
     
     func onAction(_ action: RenderAction) -> Bool {
@@ -51,5 +53,9 @@ import SwiftUI
             return nil
         }
         return renderCells[index]
+    }
+
+    var renderLinks: [RenderLink] {
+        return renderLinksNode.renderLinks
     }
 }

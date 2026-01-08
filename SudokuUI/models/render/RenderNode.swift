@@ -7,19 +7,19 @@
 
 import RSudokuKit
 
-protocol RenderNode {
-    func getChildNodes() -> [RenderNode];
-    mutating func reset();
-    mutating func onAction(_ action: RenderAction) -> Bool;
-    func onInterceptAction(_ action: RenderAction) -> Bool;
+protocol RenderNode: AnyObject {
+    func getChildNodes() -> [any RenderNode]
+    func reset()
+    func onAction(_ action: RenderAction) -> Bool
+    func onInterceptAction(_ action: RenderAction) -> Bool
 }
 
 extension RenderNode {
-    mutating func dispatchAction(_ action: RenderAction) -> Bool {
+    func dispatchAction(_ action: RenderAction) -> Bool {
         if onInterceptAction(action) {
-            let consumed = self.onAction(action);
+            let consumed = self.onAction(action)
             if !consumed {
-                for var child in self.getChildNodes() {
+                for child in self.getChildNodes() {
                     if child.dispatchAction(action) {
                         return true;
                     }
