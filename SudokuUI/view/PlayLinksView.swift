@@ -19,6 +19,7 @@ struct PlayLinksView: View {
                     link: link,
                     start: configuration.linkCandidateCenter(for: link.fromIndex, candidate: link.fromCandidate),
                     end: configuration.linkCandidateCenter(for: link.toIndex, candidate: link.toCandidate),
+                    candidateRadius: configuration.linkCandidateRadius(),
                     lineWidth: configuration.linkLineWidth()
                 )
             }
@@ -41,10 +42,19 @@ private extension PlaySudokuConfiguration {
         let candidateIndex = max(1, min(9, Int(candidate))) - 1
         let candidateRow = CGFloat(candidateIndex / 3)
         let candidateCol = CGFloat(candidateIndex % 3)
-        let candidateSize = (cellSize - innerPadding - innerPadding) / 3.0
+        let candidateSize = linkCandidateSize(innerPadding: innerPadding)
         let cellOrigin = CGPoint(x: col * cellSize, y: row * cellSize)
         let offsetX = innerPadding + (candidateSize + candidateSpacing) * candidateCol + candidateSize / 2.0
         let offsetY = innerPadding + (candidateSize + candidateSpacing) * candidateRow + candidateSize / 2.0
         return CGPoint(x: cellOrigin.x + offsetX, y: cellOrigin.y + offsetY)
+    }
+
+    func linkCandidateRadius() -> CGFloat {
+        let candidateSize = linkCandidateSize(innerPadding: 8.0)
+        return candidateSize * 0.70710678
+    }
+
+    private func linkCandidateSize(innerPadding: CGFloat) -> CGFloat {
+        return (cellSize - innerPadding - innerPadding) / 3.0
     }
 }
