@@ -121,6 +121,19 @@ import RSudokuKit
         self.renderSudoku.reset()
         self.game.render()
     }
+
+    public func copyHodokuString() -> String? {
+        game.hodokuString()
+    }
+
+    @discardableResult
+    public func paste(hodokuString: String) -> Bool {
+        guard let puzzle = Puzzle(hodokuString: hodokuString) else {
+            return false
+        }
+        self.copy(from: puzzle)
+        return true
+    }
     
     public func select(index: any AsIndex) {
         self.game.select(index: index)
